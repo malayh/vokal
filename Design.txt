@@ -1,0 +1,11 @@
+- React will server the UI
+
+- Signalling
+    - Server will be asked to create a room or join a room
+    - Signalling server writes to a queue and expects a response to be written in another queue
+    - Responce is a ICE that Signalling server sends back to the client
+    
+- Voice server will be passed an ice and room id
+    - If room id doesnot exist yet, create a process and try to connect to the ICE
+    - If room exist, send that ICE to that process to try and connect to
+    - When room becomes empty stop the process for that room
