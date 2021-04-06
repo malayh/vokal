@@ -18,12 +18,14 @@ export class ActiveConnection{
         this.ws.onmessage = this.onWSMessage.bind(this);
 
         this.pc = new RTCPeerConnection();
-        this.pc.createDataChannel("chat",{ordered: true}); // This is required even if you don't use it. otherwise ICE wont collect 
+        
+        // This is required even if you don't use it. otherwise ICE wont be collected
+        this.pc.createDataChannel("chat",{ordered: true}); 
         this.pc.ontrack = e =>{
             document.getElementById('audio').srcObject = e.streams[0];
         }
 
-        
+
         this.pc.onicegatheringstatechange = e =>{
             console.log(this.pc.iceConnectionState);
         }
