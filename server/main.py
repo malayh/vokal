@@ -8,8 +8,12 @@ import json
 
 HOST = "localhost"
 PORT = 8500
-TOPIC_TO_VOICE_SERVER = "sendToVoiceServer"
-TOPIC_FROM_VOICE_SERVER = "recvFromVoiceServer"
+
+TMQ_HOST = "localhost"
+TMQ_PORT = 9800
+TOPIC_TO_VOICE_SERVER = "fromRootServer"
+TOPIC_FROM_VOICE_SERVER = "fromVoiceServer"
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -80,9 +84,7 @@ class RootSever:
             while _rid in self.active_connections:
                 _rid = random.randint(1000, 100000)
 
-            room_id = _rid
-
-        
+            room_id = _rid        
 
 
         conn = ActiveConnection(ws, data["name"],room_id)
