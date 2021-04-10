@@ -37,6 +37,7 @@ class Room extends React.Component {
 }
 
 class JoinCreate extends React.Component {
+
   constructor(props){
       super(props);
 
@@ -53,8 +54,14 @@ class JoinCreate extends React.Component {
       this.onCreate = this.onCreate.bind(this);
       
       this.activeConnection = null;
+
+      this.audio = React.createRef();
+      this.onTrack = this.onTrack.bind(this)
   }
 
+  onTrack(stream){
+    this.audio.current.srcObject = stream;
+  }
   async onJoin(e){
       if(this.state.name === ""){
         this.setState({name_helper_txt:"Must provide your name"});
@@ -69,7 +76,7 @@ class JoinCreate extends React.Component {
       this.setState({room_id_helper_txt:null});
 
       try{
-        this.activeConnection = new ActiveConnection(this.state.room_id,this.state.name);
+        this.activeConnection = new ActiveConnection(this.state.room_id,this.state.name,this.onTrack );
       } catch(e) {
         console.log(e);
       }
@@ -98,6 +105,7 @@ class JoinCreate extends React.Component {
         <Button variant="contained" color="primary" style={{margin:"1em", marginLeft:0}} onClick={this.onJoin}>Join room</Button>
         <Button variant="contained" color="default"  onClick={this.onCreate}>Create room</Button>
       </div>
+      <audio ref={this.audio} autoPlay></audio>
       </>
     );
   }
@@ -110,6 +118,8 @@ class VokalHome extends React.Component {
     this.state = {
       inARoom : false
     }
+
+    this.audio = React.createRef();
   }
   render(){
     return (
@@ -126,7 +136,6 @@ ReactDOM.render(
   <React.StrictMode>
     <>
     <VokalHome/>
-    <audio id="audio" autoPlay={true}></audio>
     </>
   </React.StrictMode>,
   document.getElementById('root')
