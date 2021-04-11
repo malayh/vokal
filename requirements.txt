@@ -1,0 +1,16 @@
+aioice==0.7.5
+aiortc==1.2.0
+av==8.0.3
+cffi==1.14.5
+crc32c==2.2
+cryptography==3.4.7
+daemonize==2.5.0
+dnspython==2.1.0
+netifaces==0.10.9
+protobuf==3.15.6
+pycparser==2.20
+pyee==8.1.0
+pylibsrtp==0.6.8
+six==1.15.0
+tinyMQ==0.0.1
+websockets==8.1
