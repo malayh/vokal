@@ -34,9 +34,8 @@ export class ActiveConnection{
         }
         
         this.pc.ontrack = async (e) =>{
+            console.log(e);
             onTrack(e.streams[0]);
-            // audio_ref.current.srcObject = e.streams[0];
-            // document.getElementById('audio').srcObject = e.streams[0];
         }
 
 
@@ -70,7 +69,6 @@ export class ActiveConnection{
 
         let stream = await navigator.mediaDevices.getUserMedia(constraints);
         stream.getTracks().forEach((track)=> {
-            console.log(track,stream);
             this.pc.addTrack(track, stream);
         });
 

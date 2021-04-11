@@ -56,7 +56,6 @@ class RootSever:
         # TODO: Not sure how to teminate this gracefully when RootServer goes down
         self.inQ_polling = None
 
-
     async def maintain_client_connection(self, conn : ActiveConnection) -> None:
         """
         If ws connection is broken, remove the user from active connections and send signal to voice server
@@ -115,10 +114,7 @@ class RootSever:
                     "sdp"   : data["sdp"],
                     "room_id": room_id
                 }
-                await user.ws.send(json.dumps(_to_client))
-
-
-        
+                await user.ws.send(json.dumps(_to_client))    
 
     async def handle_connection_init(self, ws:websockets.WebSocketClientProtocol, path:str):
         """

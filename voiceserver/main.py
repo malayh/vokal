@@ -1,7 +1,7 @@
-from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
+from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
 from aiortc.contrib.media import MediaRelay, MediaPlayer, MediaRecorder, MediaBlackhole
 from tinyMQ import Producer, Consumer
-from typing import Set, Dict, List
+from typing import Set, Dict, List, Tuple
 import logging
 from multiprocessing import Process, Pipe
 from multiprocessing.connection import Connection
@@ -34,19 +34,13 @@ class LiveRoom:
         }
     
     It writes answer to outQ, which is been consumed by the RootServer which will be sent to the client. Answer is of format
-        { 
-            type:
-            room_id:
-            user_id:
-            sdp:
-        }
-
+    { type , room_id , user_id ,sdp}
 
     """
     def __init__(self, room_id:int, q: Connection ):
         self.room_id = room_id
         self.relay = MediaRelay()
-        self.active_users : Dict[int,RTCPeerConnection] = dict()
+        self.active_users : Dict[int, Tuple[RTCPeerConnection, MediaStreamTrack] ] = dict()
         # outQ is listened by RootServer
         self.outQ = Producer(TMQ_HOST,TMQ_PORT,TOPIC_TO_ROOT_SERVER)
         self.inQ : Connection = q
@@ -61,7 +55,7 @@ class LiveRoom:
         This is the main loop for the live rooms
         """
         while True:
-            # because inQ.get in sychronous running it in a thread so that main event loop is not blocked
+            # because inQ.get is sychronous, running it in a thread so that main event loop is not blocked
             data = await asyncio.get_running_loop().run_in_executor(None, self.inQ.recv)
 
             if not isinstance(data, dict)  or "type" not in data:
@@ -110,20 +104,28 @@ class LiveRoom:
         @pc.on("track")
         async def on_track(track):
             self.logger.debug(f"Got {track.kind} track from user {user_id} in room {self.room_id}")
-            for uid in self.active_users.keys():
-                if uid != user_id:
-                    self.active_users[uid].addTrack(self.relay.subscribe(track))
+            if track.kind == "audio":
+                self.active_users[user_id] = [pc,track]
+                
 
             @track.on("ended")
             async def on_ended():
-                # IDK what to do here
                 pass
+                # IDK what to do here
+
+        
+        for uid, value in self.active_users.items():
+            if value[1]:
+                pc.addTrack(self.relay.subscribe(value[1]))
+               
+
 
         await pc.setRemoteDescription(RTCSessionDescription(sdp=sdp, type="offer"))
         ans = await pc.createAnswer()
         await pc.setLocalDescription(ans)
 
-        self.active_users[user_id] = pc
+        if user_id not in self.active_users:
+            self.active_users[user_id] = [pc,None]
 
         _ans = {
             "type"      : "answer",
